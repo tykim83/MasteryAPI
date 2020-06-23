@@ -14,5 +14,6 @@ namespace MasteryAPI.DataAccess
         }
 
         public DbSet<Record> Records { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }

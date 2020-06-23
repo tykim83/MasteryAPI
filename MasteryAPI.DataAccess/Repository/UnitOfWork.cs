@@ -22,11 +22,17 @@ namespace MasteryAPI.DataAccess.Repository
             _db = db;
             Account = new AccountRepository(userManager, configuration, signInManager, mapper);
             Record = new RecordRepository(_db);
+            Category = new CategoryRepository(_db);
+            User = new UserRepository(_db);
         }
 
         public IAccountRepository Account { get; private set; }
 
         public IRecordRepository Record { get; private set; }
+
+        public ICategoryRepository Category { get; private set; }
+
+        public IUserRepository User { get; private set; }
 
         public void Dispose()
         {

@@ -8,6 +8,8 @@ namespace MasteryAPI.DataAccess.Repository.IRepository
     {
         IAccountRepository Account { get; }
         IRecordRepository Record { get; }
+        ICategoryRepository Category { get; }
+        IUserRepository User { get; }
 
         void Save();
     }

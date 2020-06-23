@@ -54,7 +54,7 @@ namespace MasteryAPI.BusinessLogic
             //Invalid ID
             if (recordId == 0)
             {
-                response.ErrorCode = 400;
+                response.StatusCode = 400;
                 return response;
             }
 
@@ -63,14 +63,14 @@ namespace MasteryAPI.BusinessLogic
             //Record Null
             if (recordFromDb == null)
             {
-                response.ErrorCode = 404;
+                response.StatusCode = 404;
                 return response;
             }
 
             //Record is alredy Completed
             if (recordFromDb.IsCompleted == true)
             {
-                response.ErrorCode = 406;
+                response.StatusCode = 406;
             }
 
             //Success - Record can be completed

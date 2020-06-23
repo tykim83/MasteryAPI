@@ -12,16 +12,14 @@ namespace MasteryAPI.Controllers
     [ApiController]
     public class RecordController : ControllerBase
     {
-        private readonly IUnitOfWork unitOfWork;
-        private readonly IMapper mapper;
         private readonly IRecordManager recordManager;
 
-        public RecordController(IUnitOfWork unitOfWork, IMapper mapper, IRecordManager recordManager)
+        public RecordController(IRecordManager recordManager)
         {
-            this.unitOfWork = unitOfWork;
-            this.mapper = mapper;
             this.recordManager = recordManager;
         }
+
+        #region Create Record Complete
 
         [HttpPost("CreateComplete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -32,6 +30,10 @@ namespace MasteryAPI.Controllers
             return Ok(recordDTO);
         }
 
+        #endregion Create Record Complete
+
+        #region Start Record
+
         [HttpPost("Start")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -41,6 +43,10 @@ namespace MasteryAPI.Controllers
             return Ok(recordDTO);
         }
 
+        #endregion Start Record
+
+        #region Stop Record
+
         [HttpGet("{recordId}", Name = "Stop")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -48,20 +54,22 @@ namespace MasteryAPI.Controllers
         {
             var response = recordManager.StopRecord(recordId);
 
-            switch (response.ErrorCode)
+            switch (response.StatusCode)
             {
                 case 400:
-                    return BadRequest(new { error = "Invalid Id" });
+                    return BadRequest(new { message = "Invalid Id" });
 
                 case 404:
-                    return NotFound(new { error = "Record with the Id provided does not exists" });
+                    return NotFound(new { message = "Record with the Id provided does not exists" });
 
                 case 406:
-                    return BadRequest(new { error = "Record with the Id provided It is already completed" });
+                    return BadRequest(new { message = "Record with the Id provided It is already completed" });
 
                 default:
                     return Ok(response.DTO);
             }
         }
+
+        #endregion Stop Record
     }
 }

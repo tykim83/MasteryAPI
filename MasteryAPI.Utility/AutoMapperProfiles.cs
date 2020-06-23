@@ -15,6 +15,8 @@ namespace MasteryAPI.Utility
             CreateMap<Record, RecordDTO>();
             CreateMap<RecordCreationStartDTO, Record>();
 
+            CreateMap<Category, CategoryDTO>();
+
             CreateMap<ApplicationUser, UserDetails>();
             CreateMap<PatchUserDetails, ApplicationUser>().ForMember(q => q.Name, option => option.Ignore())
              .AfterMap((src, dst) =>
