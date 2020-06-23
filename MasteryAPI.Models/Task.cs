@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MasteryAPI.Models
 {
-    public class Category
+    public class Task
     {
         [Key]
         public int Id { get; set; }
@@ -14,11 +14,9 @@ namespace MasteryAPI.Models
         [Required]
         public string Name { get; set; }
 
-        [ForeignKey("User")]
-        public string UserId { get; set; }
+        [ForeignKey("Category")]
+        public int CategoryId { get; set; }
 
-        public ApplicationUser User { get; set; }
-
-        public virtual ICollection<Task> Tasks { get; set; }
+        public Category Category { get; set; }
     }
 }

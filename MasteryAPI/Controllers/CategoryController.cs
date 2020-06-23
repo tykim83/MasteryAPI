@@ -51,10 +51,10 @@ namespace MasteryAPI.Controllers
             switch (response.StatusCode)
             {
                 case 400:
-                    return BadRequest(new { error = "Invalid Id" });
+                    return BadRequest(new { message = "Invalid Id" });
 
                 case 404:
-                    return NotFound(new { error = "Record with the Id provided does not exists" });
+                    return NotFound(new { message = "Record with the Id provided does not exists" });
 
                 default:
                     return Ok(response.DTO);

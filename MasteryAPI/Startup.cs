@@ -68,6 +68,7 @@ namespace MasteryAPI
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IRecordManager, RecordManager>();
             services.AddScoped<ICategoryManager, CategoryManager>();
+            services.AddScoped<ITaskManager, TaskManager>();
 
             services.AddAutoMapper(Assembly.GetAssembly(typeof(AutoMapperProfiles)));
 

@@ -24,6 +24,7 @@ namespace MasteryAPI.DataAccess.Repository
             Record = new RecordRepository(_db);
             Category = new CategoryRepository(_db);
             User = new UserRepository(_db);
+            Task = new TaskRepository(_db);
         }
 
         public IAccountRepository Account { get; private set; }
@@ -33,6 +34,8 @@ namespace MasteryAPI.DataAccess.Repository
         public ICategoryRepository Category { get; private set; }
 
         public IUserRepository User { get; private set; }
+
+        public ITaskRepository Task { get; private set; }
 
         public void Dispose()
         {

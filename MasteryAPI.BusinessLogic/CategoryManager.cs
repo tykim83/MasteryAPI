@@ -28,7 +28,13 @@ namespace MasteryAPI.BusinessLogic
                 UserId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id
             };
 
+            //Create Category
             unitOfWork.Category.Add(category);
+            unitOfWork.Save();
+
+            //Create Main Task
+            Task task = new Task { Name = "Main", CategoryId = category.Id };
+            unitOfWork.Task.Add(task);
             unitOfWork.Save();
 
             return mapper.Map<CategoryDTO>(category);
