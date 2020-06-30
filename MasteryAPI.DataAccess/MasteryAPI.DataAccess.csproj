@@ -9,6 +9,10 @@
     <Compile Remove="Migrations\20200619131524_AddRecordsToDb.Designer.cs" />
     <Compile Remove="Migrations\20200623153558_test.cs" />
     <Compile Remove="Migrations\20200623153558_test.Designer.cs" />
+    <Compile Remove="Migrations\20200626174418_AddOneManyTaskRecords.cs" />
+    <Compile Remove="Migrations\20200626174418_AddOneManyTaskRecords.Designer.cs" />
+    <Compile Remove="Migrations\20200626175132_AddOneManyCategoryRecords.cs" />
+    <Compile Remove="Migrations\20200626175132_AddOneManyCategoryRecords.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

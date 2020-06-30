@@ -1,4 +1,5 @@
-﻿using MasteryAPI.Models.DTOs;
+﻿using MasteryAPI.BusinessLogic.Models;
+using MasteryAPI.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -8,10 +9,10 @@ namespace MasteryAPI.BusinessLogic.Interfaces
 {
     public interface IRecordManager
     {
-        RecordDTO CreateRecord(RecordCreationCompleteDTO recordCreationCompleteDTO);
+        BusinessLogicResponseDTO CreateRecord(RecordCreationCompleteDTO recordCreationCompleteDTO, string email);
 
-        RecordDTO StartRecord(RecordCreationStartDTO recordCreationStartDTO);
+        BusinessLogicResponseDTO StartRecord(RecordCreationStartBO recordCreationStartBO);
 
-        BusinessLogicResponseDTO StopRecord(int recordId);
+        BusinessLogicResponseDTO StopRecord(StopRecordBO stopRecordBO);
     }
 }

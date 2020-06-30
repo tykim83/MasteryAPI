@@ -10,9 +10,10 @@ namespace MasteryAPI.Models.DTOs
 
         public DateTime Started { get; set; }
 
-        public DateTime? Finished { get; set; }
+        public DateTime Finished { get; set; }
         public TimeSpan? TotalDuration { get; set; }
         public bool IsCompleted { get; set; }
         public string Note { get; set; }
+        public TaskDTO Task { get; set; }
     }
 }

@@ -4,14 +4,16 @@ using MasteryAPI.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasteryAPI.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200626174654_AddOneManyTaskRecords")]
+    partial class AddOneManyTaskRecords
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,15 +96,9 @@ namespace MasteryAPI.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Color")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeSpan>("TotalDuration")
-                        .HasColumnType("time");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -136,7 +132,7 @@ namespace MasteryAPI.DataAccess.Migrations
                     b.Property<int>("TaskId")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("TotalDuration")
+                    b.Property<TimeSpan?>("TotalDuration")
                         .HasColumnType("time");
 
                     b.HasKey("Id");
@@ -159,9 +155,6 @@ namespace MasteryAPI.DataAccess.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeSpan>("TotalDuration")
-                        .HasColumnType("time");
 
                     b.HasKey("Id");
 

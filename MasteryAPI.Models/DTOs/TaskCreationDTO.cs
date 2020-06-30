@@ -5,17 +5,12 @@ using System.Text;
 
 namespace MasteryAPI.Models.DTOs
 {
-    public class RecordCreationCompleteDTO
+    public class TaskCreationDTO
     {
-        public DateTime Started { get; set; }
-
-        public DateTime Finished { get; set; }
-
-        public string Note { get; set; }
+        [Required]
+        public string Name { get; set; }
 
         [Required]
         public int CategoryId { get; set; }
-
-        public int TaskId { get; set; }
     }
 }

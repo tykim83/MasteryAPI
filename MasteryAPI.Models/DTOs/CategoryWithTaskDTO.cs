@@ -4,11 +4,10 @@ using System.Text;
 
 namespace MasteryAPI.Models.DTOs
 {
-    public class CategoryDTO
+    public class CategoryWithTaskDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Color { get; set; }
-        public TimeSpan TotalDuration { get; set; }
+        public List<TaskDTO> Tasks { get; set; }
     }
 }

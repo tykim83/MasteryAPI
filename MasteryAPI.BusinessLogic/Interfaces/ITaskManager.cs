@@ -7,5 +7,6 @@ namespace MasteryAPI.BusinessLogic.Interfaces
 {
     public interface ITaskManager
     {
+        BusinessLogicResponseDTO CreateTask(TaskCreationDTO taskCreationDTO, string email);
     }
 }

@@ -5,6 +5,7 @@ using MasteryAPI.Models;
 using MasteryAPI.Models.DTOs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MasteryAPI.BusinessLogic
@@ -18,6 +19,39 @@ namespace MasteryAPI.BusinessLogic
         {
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
+        }
+
+        public BusinessLogicResponseDTO Get(int categoryId, string email)
+        {
+            BusinessLogicResponseDTO response = new BusinessLogicResponseDTO();
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
+
+            //Invalid ID
+            if (categoryId == 0)
+            {
+                response.StatusCode = 400;
+                return response;
+            }
+
+            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryId && c.UserId == userId, includeProperties: "Tasks");
+
+            //Category is Null
+            if (categoryFromDb == null)
+            {
+                response.StatusCode = 404;
+                return response;
+            }
+
+            response.DTO = mapper.Map<CategoryWithTaskDTO>(categoryFromDb);
+
+            return response;
+        }
+
+        public List<CategoryDTO> GetAll(string email)
+        {
+            var UserId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
+
+            return mapper.Map<List<CategoryDTO>>(unitOfWork.Category.GetAll(c => c.UserId == UserId).ToList());
         }
 
         public CategoryDTO CreateCategory(CategoryCreationDTO categoryCreationDTO, string email)

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace MasteryAPI.Models.DTOs
+namespace MasteryAPI.BusinessLogic.Models
 {
-    public class RecordCreationStartDTO
+    public class RecordCreationStartBO
     {
         public string Note { get; set; }
 
-        [Required]
         public int CategoryId { get; set; }
 
         public int TaskId { get; set; }
+        public string UserEmail { get; set; }
     }
 }

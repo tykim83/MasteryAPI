@@ -14,9 +14,12 @@ namespace MasteryAPI.Models
         [Required]
         public string Name { get; set; }
 
+        public TimeSpan TotalDuration { get; set; }
+
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
 
         public Category Category { get; set; }
+        public ICollection<Record> Records { get; set; }
     }
 }

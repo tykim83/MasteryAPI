@@ -14,6 +14,10 @@ namespace MasteryAPI.Models
         [Required]
         public string Name { get; set; }
 
+        public string Color { get; set; }
+
+        public TimeSpan TotalDuration { get; set; }
+
         [ForeignKey("User")]
         public string UserId { get; set; }
 

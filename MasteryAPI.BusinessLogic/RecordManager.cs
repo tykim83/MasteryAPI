@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using MasteryAPI.BusinessLogic.Interfaces;
+using MasteryAPI.BusinessLogic.Models;
 using MasteryAPI.DataAccess.Repository.IRepository;
 using MasteryAPI.Models;
 using MasteryAPI.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using System.Text;
 
 namespace MasteryAPI.BusinessLogic
@@ -22,46 +23,125 @@ namespace MasteryAPI.BusinessLogic
             this.mapper = mapper;
         }
 
-        public RecordDTO CreateRecord(RecordCreationCompleteDTO recordCreationCompleteDTO)
+        public BusinessLogicResponseDTO CreateRecord(RecordCreationCompleteDTO recordCreationCompleteDTO, string email)
         {
+            BusinessLogicResponseDTO businessLogicResponseDTO = new BusinessLogicResponseDTO();
+            Category categoryFromDB;
+            Task taskFromDB;
+
+            //Check if Category is 0
+            if (recordCreationCompleteDTO.CategoryId == 0)
+            {
+                businessLogicResponseDTO.StatusCode = 400;
+                return businessLogicResponseDTO;
+            }
+
+            //Check if Category Exists
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
+            categoryFromDB = unitOfWork.Category.GetFirstOrDefault(c => c.Id == recordCreationCompleteDTO.CategoryId && c.UserId == userId, includeProperties: "Tasks");
+            if (categoryFromDB == null)
+            {
+                businessLogicResponseDTO.StatusCode = 404;
+                return businessLogicResponseDTO;
+            }
+
+            //Check if Task Exists and Get the Active task
+            if (recordCreationCompleteDTO.TaskId != 0)
+            {
+                taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Id == recordCreationCompleteDTO.TaskId);
+                if (taskFromDB == null)
+                {
+                    businessLogicResponseDTO.StatusCode = 404;
+                    return businessLogicResponseDTO;
+                }
+            }
+            else
+            {
+                taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Name == "main");
+            }
+
             var record = mapper.Map<Record>(recordCreationCompleteDTO);
 
+            //Calculate total duration and add it to the task and category
             record.TotalDuration = (record.Finished ?? DateTime.Now).Subtract(record.Started);
             record.IsCompleted = true;
+            record.TaskId = taskFromDB.Id;
+            taskFromDB.TotalDuration += record.TotalDuration;
+            categoryFromDB.TotalDuration += record.TotalDuration;
 
             unitOfWork.Record.Add(record);
             unitOfWork.Save();
 
-            return mapper.Map<RecordDTO>(record);
+            businessLogicResponseDTO.DTO = mapper.Map<RecordDTO>(record);
+            return businessLogicResponseDTO;
         }
 
-        public RecordDTO StartRecord(RecordCreationStartDTO recordCreationStartDTO)
+        public BusinessLogicResponseDTO StartRecord(RecordCreationStartBO recordCreationStartBO)
         {
-            var record = mapper.Map<Record>(recordCreationStartDTO);
+            BusinessLogicResponseDTO businessLogicResponseDTO = new BusinessLogicResponseDTO();
+            Category categoryFromDB;
+            Task taskFromDB;
 
+            //Check if Category is 0
+            if (recordCreationStartBO.CategoryId == 0)
+            {
+                businessLogicResponseDTO.StatusCode = 400;
+                return businessLogicResponseDTO;
+            }
+
+            //Check if Category Exists
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == recordCreationStartBO.UserEmail).Id;
+            categoryFromDB = unitOfWork.Category.GetFirstOrDefault(c => c.Id == recordCreationStartBO.CategoryId && c.UserId == userId, includeProperties: "Tasks");
+            if (categoryFromDB == null)
+            {
+                businessLogicResponseDTO.StatusCode = 404;
+                return businessLogicResponseDTO;
+            }
+
+            //Check if Task Exists and Get the Active task
+            if (recordCreationStartBO.TaskId != 0)
+            {
+                taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Id == recordCreationStartBO.TaskId);
+                if (taskFromDB == null)
+                {
+                    businessLogicResponseDTO.StatusCode = 404;
+                    return businessLogicResponseDTO;
+                }
+            }
+            else
+            {
+                taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Name == "main");
+            }
+
+            var record = mapper.Map<Record>(recordCreationStartBO);
+            record.TaskId = taskFromDB.Id;
             record.IsCompleted = false;
+            record.Started = DateTime.Now;
 
             unitOfWork.Record.Add(record);
             unitOfWork.Save();
 
-            return mapper.Map<RecordDTO>(record);
+            businessLogicResponseDTO.DTO = mapper.Map<RecordDTO>(record);
+            return businessLogicResponseDTO;
         }
 
-        public BusinessLogicResponseDTO StopRecord(int recordId)
+        public BusinessLogicResponseDTO StopRecord(StopRecordBO stopRecordBO)
         {
             BusinessLogicResponseDTO response = new BusinessLogicResponseDTO();
 
             //Invalid ID
-            if (recordId == 0)
+            if (stopRecordBO.RecordId == 0)
             {
                 response.StatusCode = 400;
                 return response;
             }
 
-            var recordFromDb = unitOfWork.Record.Get(recordId);
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == stopRecordBO.Email).Id;
+            var recordFromDb = unitOfWork.Record.GetFirstOrDefault(c => c.Id == stopRecordBO.RecordId, includeProperties: "Task");
+            recordFromDb.Task.Category = unitOfWork.Category.Get(recordFromDb.Task.CategoryId);
 
             //Record Null
-            if (recordFromDb == null)
+            if (recordFromDb == null || recordFromDb.Task.Category.UserId != userId)
             {
                 response.StatusCode = 404;
                 return response;
@@ -77,6 +157,9 @@ namespace MasteryAPI.BusinessLogic
             recordFromDb.Finished = DateTime.Now;
             recordFromDb.TotalDuration = (recordFromDb.Finished ?? DateTime.Now).Subtract(recordFromDb.Started);
             recordFromDb.IsCompleted = true;
+
+            recordFromDb.Task.TotalDuration += recordFromDb.TotalDuration;
+            recordFromDb.Task.Category.TotalDuration += recordFromDb.TotalDuration;
 
             unitOfWork.Save();
 
