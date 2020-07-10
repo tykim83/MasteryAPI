@@ -41,6 +41,14 @@ namespace MasteryAPI
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddCors(options =>
+                        {
+                            options.AddPolicy("AllowAPIRequestIO",
+                                builder => builder
+                                .WithOrigins("http://localhost")
+                                .WithMethods("GET", "POST")
+                                .AllowAnyHeader());
+                        });
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -107,6 +115,8 @@ namespace MasteryAPI
         {
             app.UseSwagger();
 
+            
+
             app.UseSwaggerUI(config =>
             {
                 config.SwaggerEndpoint("/swagger/v1/swagger.json", "MasteryAPI");
@@ -122,6 +132,8 @@ namespace MasteryAPI
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
