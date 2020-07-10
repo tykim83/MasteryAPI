@@ -9,12 +9,12 @@ namespace MasteryAPI.DataAccess.Repository
 {
     public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
-        private readonly DbContext context;
+        private readonly ApplicationDbContext dbContext;
 
-        public CategoryRepository(DbContext context)
-            : base(context)
+        public CategoryRepository(ApplicationDbContext dbContext)
+            : base(dbContext)
         {
-            this.context = context;
+            this.dbContext = dbContext;
         }
     }
 }

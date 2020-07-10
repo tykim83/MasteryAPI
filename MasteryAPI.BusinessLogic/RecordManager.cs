@@ -23,22 +23,22 @@ namespace MasteryAPI.BusinessLogic
             this.mapper = mapper;
         }
 
-        public BusinessLogicResponseDTO CreateRecord(RecordCreationCompleteDTO recordCreationCompleteDTO, string email)
+        public BusinessLogicResponseDTO CreateRecord(RecordCreationCompleteBO recordCreationCompleteBO)
         {
             BusinessLogicResponseDTO businessLogicResponseDTO = new BusinessLogicResponseDTO();
             Category categoryFromDB;
             Task taskFromDB;
 
             //Check if Category is 0
-            if (recordCreationCompleteDTO.CategoryId == 0)
+            if (recordCreationCompleteBO.CategoryId == 0)
             {
                 businessLogicResponseDTO.StatusCode = 400;
                 return businessLogicResponseDTO;
             }
 
             //Check if Category Exists
-            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
-            categoryFromDB = unitOfWork.Category.GetFirstOrDefault(c => c.Id == recordCreationCompleteDTO.CategoryId && c.UserId == userId, includeProperties: "Tasks");
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == recordCreationCompleteBO.UserEmail).Id;
+            categoryFromDB = unitOfWork.Category.GetFirstOrDefault(c => c.Id == recordCreationCompleteBO.CategoryId && c.UserId == userId, includeProperties: "Tasks");
             if (categoryFromDB == null)
             {
                 businessLogicResponseDTO.StatusCode = 404;
@@ -46,9 +46,9 @@ namespace MasteryAPI.BusinessLogic
             }
 
             //Check if Task Exists and Get the Active task
-            if (recordCreationCompleteDTO.TaskId != 0)
+            if (recordCreationCompleteBO.TaskId != 0)
             {
-                taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Id == recordCreationCompleteDTO.TaskId);
+                taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Id == recordCreationCompleteBO.TaskId);
                 if (taskFromDB == null)
                 {
                     businessLogicResponseDTO.StatusCode = 404;
@@ -60,7 +60,7 @@ namespace MasteryAPI.BusinessLogic
                 taskFromDB = categoryFromDB.Tasks.FirstOrDefault(c => c.Name == "main");
             }
 
-            var record = mapper.Map<Record>(recordCreationCompleteDTO);
+            var record = mapper.Map<Record>(recordCreationCompleteBO);
 
             //Calculate total duration and add it to the task and category
             record.TotalDuration = (record.Finished ?? DateTime.Now).Subtract(record.Started);

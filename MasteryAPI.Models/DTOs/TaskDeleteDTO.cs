@@ -5,11 +5,12 @@ using System.Text;
 
 namespace MasteryAPI.Models.DTOs
 {
-    public class CategoryCreationDTO
+    public class TaskDeleteDTO
     {
         [Required]
-        public string Name { get; set; }
+        public int CategoryId { get; set; }
 
-        public string Color { get; set; }
+        [Required]
+        public int TaskId { get; set; }
     }
 }

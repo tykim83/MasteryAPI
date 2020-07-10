@@ -45,9 +45,10 @@ namespace MasteryAPI.Controllers
         [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status403Forbidden)]
         public ActionResult<RecordDTO> CreateRecord([FromBody]RecordCreationCompleteDTO recordCreationDTO)
         {
-            var email = HttpContext.User.Identity.Name;
+            RecordCreationCompleteBO recordCreationCompleteBO = mapper.Map<RecordCreationCompleteBO>(recordCreationDTO);
+            recordCreationCompleteBO.UserEmail = HttpContext.User.Identity.Name;
 
-            BusinessLogicResponseDTO response = recordManager.CreateRecord(recordCreationDTO, email);
+            BusinessLogicResponseDTO response = recordManager.CreateRecord(recordCreationCompleteBO);
 
             switch (response.StatusCode)
             {
@@ -85,9 +86,9 @@ namespace MasteryAPI.Controllers
         [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status403Forbidden)]
         public ActionResult<RecordDTO> Start([FromBody]RecordCreationStartDTO recordCreationStartDTO)
         {
-            var email = HttpContext.User.Identity.Name;
             RecordCreationStartBO recordCreationStartBO = mapper.Map<RecordCreationStartBO>(recordCreationStartDTO);
-            recordCreationStartBO.UserEmail = email;
+            recordCreationStartBO.UserEmail = HttpContext.User.Identity.Name;
+
             BusinessLogicResponseDTO response = recordManager.StartRecord(recordCreationStartBO);
 
             switch (response.StatusCode)
@@ -123,8 +124,7 @@ namespace MasteryAPI.Controllers
         [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status403Forbidden)]
         public ActionResult<RecordDTO> Stop(int recordId)
         {
-            var email = HttpContext.User.Identity.Name;
-            var response = recordManager.StopRecord(new StopRecordBO() { RecordId = recordId, Email = email });
+            var response = recordManager.StopRecord(new StopRecordBO() { RecordId = recordId, Email = HttpContext.User.Identity.Name });
 
             switch (response.StatusCode)
             {

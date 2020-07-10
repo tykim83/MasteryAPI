@@ -9,7 +9,7 @@ namespace MasteryAPI.BusinessLogic.Interfaces
 {
     public interface IRecordManager
     {
-        BusinessLogicResponseDTO CreateRecord(RecordCreationCompleteDTO recordCreationCompleteDTO, string email);
+        BusinessLogicResponseDTO CreateRecord(RecordCreationCompleteBO recordCreationCompleteBO);
 
         BusinessLogicResponseDTO StartRecord(RecordCreationStartBO recordCreationStartBO);
 

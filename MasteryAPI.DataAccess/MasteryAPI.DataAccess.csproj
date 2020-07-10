@@ -37,4 +37,8 @@
     <ProjectReference Include="..\MasteryAPI.Models\MasteryAPI.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\" />
+  </ItemGroup>
+
 </Project>

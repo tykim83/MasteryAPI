@@ -1,4 +1,5 @@
-﻿using MasteryAPI.Models.DTOs;
+﻿using MasteryAPI.BusinessLogic.Models;
+using MasteryAPI.Models.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,14 +8,16 @@ namespace MasteryAPI.BusinessLogic.Interfaces
 {
     public interface ICategoryManager
     {
-        BusinessLogicResponseDTO Get(int categoryId, string email);
+        BusinessLogicResponseDTO GetComplete(CategoryIdBo categoryIdBo);
+
+        BusinessLogicResponseDTO GetWithPagination(CategoryWithRecordAndPaginationBO categoryWithRecordAndPaginationBO);
 
         List<CategoryDTO> GetAll(string email);
 
-        CategoryDTO CreateCategory(CategoryCreationDTO categoryCreationDTO, string email);
+        CategoryDTO CreateCategory(CategoryCreationBO categoryCreationBO);
 
-        BusinessLogicResponseDTO UpdateCategory(CategoryUpdateDTO categoryUpdateDTO, string email);
+        BusinessLogicResponseDTO UpdateCategory(CategoryUpdateBO categoryUpdateBO);
 
-        BusinessLogicResponseDTO DeleteCategory(int categoryId, string email);
+        BusinessLogicResponseDTO DeleteCategory(CategoryIdBo categoryIdBo);
     }
 }

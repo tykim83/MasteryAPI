@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using MasteryAPI.BusinessLogic.Interfaces;
+using MasteryAPI.BusinessLogic.Models;
 using MasteryAPI.DataAccess.Repository.IRepository;
 using MasteryAPI.Models;
 using MasteryAPI.Models.DTOs;
+using MasteryAPI.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,25 +23,64 @@ namespace MasteryAPI.BusinessLogic
             this.unitOfWork = unitOfWork;
         }
 
-        public BusinessLogicResponseDTO Get(int categoryId, string email)
+        public BusinessLogicResponseDTO GetWithPagination(CategoryWithRecordAndPaginationBO categoryWithRecordAndPaginationBO)
         {
             BusinessLogicResponseDTO response = new BusinessLogicResponseDTO();
-            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == categoryWithRecordAndPaginationBO.UserEmail).Id;
 
             //Invalid ID
-            if (categoryId == 0)
+            if (categoryWithRecordAndPaginationBO.CategoryId == 0)
             {
                 response.StatusCode = 400;
                 return response;
             }
 
-            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryId && c.UserId == userId, includeProperties: "Tasks");
+            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryWithRecordAndPaginationBO.CategoryId && c.UserId == userId, includeProperties: "Tasks");
 
             //Category is Null
             if (categoryFromDb == null)
             {
                 response.StatusCode = 404;
                 return response;
+            }
+
+            List<int> tasksId = categoryFromDb.Tasks.Select(c => c.Id).ToList();
+            IEnumerable<Record> records = unitOfWork.Record.GetAll(c => tasksId.Contains(c.TaskId), orderBy: x => x.OrderBy(s => s.Started));
+
+            CategoryWithRecordsPaginationDTO categoryWithRecordsPaginationDTO = new CategoryWithRecordsPaginationDTO();
+            categoryWithRecordsPaginationDTO = mapper.Map<CategoryWithRecordsPaginationDTO>(categoryFromDb);
+            double count = records.Count();
+            categoryWithRecordsPaginationDTO.TotalAmountPages = Math.Ceiling(count / categoryWithRecordAndPaginationBO.PaginationDTO.RecordsPerPage);
+            categoryWithRecordsPaginationDTO.Records = mapper.Map<List<RecordPaginationDTO>>(records.Paginate(categoryWithRecordAndPaginationBO.PaginationDTO));
+
+            response.DTO = categoryWithRecordsPaginationDTO;
+            return response;
+        }
+
+        public BusinessLogicResponseDTO GetComplete(CategoryIdBo categoryIdBo)
+        {
+            BusinessLogicResponseDTO response = new BusinessLogicResponseDTO();
+            var userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == categoryIdBo.UserEmail).Id;
+
+            //Invalid ID
+            if (categoryIdBo.CategoryId == 0)
+            {
+                response.StatusCode = 400;
+                return response;
+            }
+
+            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryIdBo.CategoryId && c.UserId == userId, includeProperties: "Tasks");
+
+            //Category is Null
+            if (categoryFromDb == null)
+            {
+                response.StatusCode = 404;
+                return response;
+            }
+
+            foreach (var task in categoryFromDb.Tasks)
+            {
+                categoryFromDb.Tasks.FirstOrDefault(c => c.Id == task.Id).Records = unitOfWork.Record.GetAll(c => c.TaskId == task.Id).ToList();
             }
 
             response.DTO = mapper.Map<CategoryWithTaskDTO>(categoryFromDb);
@@ -54,12 +95,13 @@ namespace MasteryAPI.BusinessLogic
             return mapper.Map<List<CategoryDTO>>(unitOfWork.Category.GetAll(c => c.UserId == UserId).ToList());
         }
 
-        public CategoryDTO CreateCategory(CategoryCreationDTO categoryCreationDTO, string email)
+        public CategoryDTO CreateCategory(CategoryCreationBO categoryCreationBO)
         {
             Category category = new Category()
             {
-                Name = categoryCreationDTO.Name.ToLower(),
-                UserId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id
+                Name = categoryCreationBO.Name.ToLower(),
+                Color = categoryCreationBO.Color.ToLower(),
+                UserId = unitOfWork.User.GetFirstOrDefault(c => c.Email == categoryCreationBO.UserEmail).Id
             };
 
             //Create Category
@@ -74,19 +116,19 @@ namespace MasteryAPI.BusinessLogic
             return mapper.Map<CategoryDTO>(category);
         }
 
-        public BusinessLogicResponseDTO DeleteCategory(int categoryId, string email)
+        public BusinessLogicResponseDTO DeleteCategory(CategoryIdBo categoryIdBo)
         {
             BusinessLogicResponseDTO response = new BusinessLogicResponseDTO();
-            string userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
+            string userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == categoryIdBo.UserEmail).Id;
 
             //Invalid ID
-            if (categoryId == 0)
+            if (categoryIdBo.CategoryId == 0)
             {
                 response.StatusCode = 400;
                 return response;
             }
 
-            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryId && c.UserId == userId);
+            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryIdBo.CategoryId && c.UserId == userId);
 
             //Category is Null
             if (categoryFromDb == null)
@@ -104,19 +146,19 @@ namespace MasteryAPI.BusinessLogic
             return response;
         }
 
-        public BusinessLogicResponseDTO UpdateCategory(CategoryUpdateDTO categoryUpdateDTO, string email)
+        public BusinessLogicResponseDTO UpdateCategory(CategoryUpdateBO categoryUpdateBO)
         {
             BusinessLogicResponseDTO response = new BusinessLogicResponseDTO();
-            string userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == email).Id;
+            string userId = unitOfWork.User.GetFirstOrDefault(c => c.Email == categoryUpdateBO.UserEmail).Id;
 
             //Invalid ID
-            if (categoryUpdateDTO.Id == 0)
+            if (categoryUpdateBO.Id == 0)
             {
                 response.StatusCode = 400;
                 return response;
             }
 
-            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryUpdateDTO.Id && c.UserId == userId);
+            Category categoryFromDb = unitOfWork.Category.GetFirstOrDefault(c => c.Id == categoryUpdateBO.Id && c.UserId == userId);
 
             //Category is Null
             if (categoryFromDb == null)
@@ -126,7 +168,7 @@ namespace MasteryAPI.BusinessLogic
             }
 
             //Success - Update Category Name
-            categoryFromDb.Name = categoryUpdateDTO.Name;
+            categoryFromDb.Name = categoryUpdateBO.Name;
             unitOfWork.Save();
 
             response.DTO = mapper.Map<CategoryDTO>(categoryFromDb);

@@ -9,12 +9,12 @@ namespace MasteryAPI.DataAccess.Repository
 {
     public class TaskRepository : Repository<Task>, ITaskRepository
     {
-        private readonly DbContext context;
+        private readonly ApplicationDbContext dbContext;
 
-        public TaskRepository(DbContext context)
-            : base(context)
+        public TaskRepository(ApplicationDbContext dbContext)
+            : base(dbContext)
         {
-            this.context = context;
+            this.dbContext = dbContext;
         }
     }
 }

@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace MasteryAPI.Models.DTOs
+namespace MasteryAPI.BusinessLogic.Models
 {
-    public class CategoryCreationDTO
+    public class CategoryCreationBO
     {
-        [Required]
         public string Name { get; set; }
 
         public string Color { get; set; }
+        public string UserEmail { get; set; }
     }
 }
